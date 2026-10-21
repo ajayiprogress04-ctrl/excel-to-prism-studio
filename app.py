@@ -18,6 +18,11 @@ HELP = '''1. Browse for an Excel workbook (.xlsx, .xlsm or .xls).
 4. Convert, then open the result in your licensed GraphPad Prism.
 
 First row: column titles. Other rows: numbers or blank cells.
+For h:mm:ss.fraction text, select Convert durations: seconds or minutes.
+Time origins are preserved. Numeric columns are NEVER rescaled by this option.
+The converted column title includes its unit. All other columns stay intact.
+For your phase workbooks, choose XY + seconds and graph Heart Rate in Prism.
+Other metric columns are retained for inspection, not automatically analyzed.
 Column: each column contains observations for one group.
 XY: first column contains X; remaining columns contain Y datasets.
 Each worksheet becomes a separate Prism data table.
@@ -52,6 +57,7 @@ class App:
         self.output = tk.StringVar()
         self.sheet = tk.StringVar(value='All worksheets')
         self.kind = tk.StringVar(value='Column')
+        self.time_unit = tk.StringVar(value='none')
         self.theme = tk.StringVar(value='Light')
         self.status = tk.StringVar(value='Select a workbook to begin.')
         self.style = ttk.Style(root)
@@ -85,6 +91,10 @@ class App:
         self.out_entry.grid(row=3,column=1,sticky='ew')
         self.save_button = ttk.Button(form,text='Choose…',command=self.choose_output)
         self.save_button.grid(row=3,column=2,padx=(8,0))
+        ttk.Label(form,text='Convert durations').grid(row=4,column=0,sticky='w',pady=6)
+        self.time_choice = ttk.Combobox(form,textvariable=self.time_unit,
+            values=['none','seconds','minutes'],state='readonly')
+        self.time_choice.grid(row=4,column=1,sticky='ew')
         self.tip = ttk.Label(outer,text='Column: one group per column. XY: X first, then Y datasets.',padding=(0,12))
         self.tip.pack(anchor='w')
         self.types.bind('<<ComboboxSelected>>', lambda e: self.tip.configure(text=(
@@ -138,6 +148,7 @@ class App:
         self.busy=value
         for widget in [self.browse,self.save_button,self.out_entry,self.convert_button]:
             widget.configure(state='disabled' if value else 'normal')
+        self.time_choice.configure(state='disabled' if value else 'readonly')
         self.types.configure(state='disabled' if value else 'readonly')
         self.sheets.configure(state='disabled' if value or not self.source.get() else 'readonly')
         self.open_button.configure(state='normal' if self.result and not value else 'disabled')
@@ -167,14 +178,20 @@ class App:
             messagebox.showwarning(TITLE,'Choose an Excel workbook and output filename.'); return
         source,output=self.source.get(),self.output.get().strip()
         kind=self.kind.get().lower()
+        time_unit=self.time_unit.get()
         sheet=None if self.sheets.current()==0 else self.sheet.get()
+        if time_unit != 'none' and not messagebox.askokcancel(TITLE,
+            f'Convert duration columns to {time_unit}? Numeric columns remain unchanged. '
+            'Original time origins and all other columns are preserved. No calculations are rerun.'):
+            return
         self.result=None
         self.set_busy(True)
         self.status.set('Converting worksheets…')
+        self.write(f'Duration conversion: {time_unit}. Numeric columns unchanged; all columns retained.')
         self.write(f'Converting {Path(source).name} as {kind.upper()} tables…')
         def work():
             try:
-                result=convert_excel_to_prism(source,output,kind,sheet)
+                result=convert_excel_to_prism(source,output,kind,sheet,time_unit)
                 count=len(ET.parse(result).getroot().find('TableSequence'))
                 self.events.put(('done',(result,count)))
             except Exception as error: self.events.put(('error',str(error)))

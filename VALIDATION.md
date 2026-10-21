@@ -1,21 +1,18 @@
-# Validation at delivery
+# Version 1.1.0 validation
 
 Performed in the available Linux environment:
-- Eight unittest cases passed: Column values/blanks, XY values, all/single
-  worksheet selection and empty-sheet exclusion, invalid-cell address,
-  overwrite protection, missing/unsupported input, XY minimum columns,
-  missing worksheet.
-- Python compilation passed for app.py and excel_to_prism.py.
-- Original converter matches the supplied source byte for byte.
+- 14 automated tests passed (original conversion and new duration handling).
+- Python compilation passed for GUI and converter.
+- Both uploaded workbooks converted successfully as XY, duration unit seconds.
+- Recovery: 15 worksheets, 3,372 data rows, 47,208 cells checked.
+- Warming Up: 15 worksheets, 2,818 data rows, 16,908 cells checked.
+- Every exported cell compared against source cached values, including blanks,
+  using a numerical tolerance of 1e-14 relative / 1e-10 absolute. Time text was
+  checked against its duration in seconds. Sheet and column counts matched.
+- All numeric columns, summary values, blanks and row order retained.
 
-Not performed:
-- Live GUI interaction or visual review: no graphical display is available.
-- Windows build, packaged GUI startup, installation or uninstall.
-- GitHub upload, Actions execution or Release publication.
-- Opening generated PZFX files in licensed GraphPad Prism 10.
-- Actual .xls/.xlsm input cases, cached-formula behavior, permission errors,
-  Windows scaling/accessibility, very large workbooks or antivirus checks.
-
-The included Windows workflow provides automated startup/install/uninstall
-checks when run. It does not replace manual conversion and data verification
-inside Prism 10. See README.md for the remaining user checks.
+Not performed: GUI visual or interaction tests (no display available), Windows
+build/install/uninstall for this update, GitHub workflow execution, or opening
+outputs in GraphPad Prism 10. PZFX XML/data checks do not prove Prism acceptance.
+Original user workbooks were read only and excluded from the project ZIP.
+The Tidy participant-ID workbook was not supplied and remains untested/unsupported.

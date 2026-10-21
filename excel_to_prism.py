@@ -14,6 +14,8 @@ Excel formulas require saved calculated values. Not tested inside Prism 10.
 """
 import argparse
 import math
+import re
+from datetime import time, timedelta
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
@@ -47,6 +49,38 @@ def numeric_text(value, sheet, row, column):
     return format(number, '.17g')
 
 
+def duration_seconds(value):
+    """Parse unambiguous h:mm:ss[.fraction] durations; never infer Excel serial units."""
+    if isinstance(value, timedelta):
+        return value.total_seconds()
+    if isinstance(value, time):
+        return value.hour * 3600 + value.minute * 60 + value.second + value.microsecond / 1e6
+    if isinstance(value, str):
+        match = re.fullmatch(r"(\d+):([0-5]\d):([0-5]\d(?:\.\d+)?)", value.strip())
+        if match:
+            h, m, sec = match.groups()
+            return int(h) * 3600 + int(m) * 60 + float(sec)
+    raise ValueError(f"Expected duration h:mm:ss[.fraction], found {value!r}.")
+
+
+def prepare_column(values, title, sheet, column, time_unit):
+    present = [v for v in values if not pd.isna(v) and not (isinstance(v, str) and not v.strip())]
+    time_like = any(isinstance(v, (time, timedelta)) or (isinstance(v, str) and ':' in v) for v in present)
+    if time_unit != 'none' and time_like:
+        converted = []
+        for r, value in enumerate(values, 2):
+            if pd.isna(value) or (isinstance(value, str) and not value.strip()):
+                converted.append(None)
+                continue
+            try:
+                number = duration_seconds(value) / (60 if time_unit == 'minutes' else 1)
+            except ValueError as error:
+                raise ValueError(f"Sheet '{sheet}', cell {column}{r}: {error}") from None
+            converted.append(format(number, '.17g'))
+        return f'{title} ({time_unit})', converted
+    return title, [numeric_text(v, sheet, r, column) for r, v in enumerate(values, 2)]
+
+
 def add_data_column(table, tag, title, values):
     column = ET.SubElement(table, tag, Width='100', Decimals='6', Subcolumns='1')
     ET.SubElement(column, 'Title').text = str(title)
@@ -57,7 +91,7 @@ def add_data_column(table, tag, title, values):
             cell.text = value
 
 
-def convert_excel_to_prism(input_file, output_file=None, table_type='column', sheet_name=None):
+def convert_excel_to_prism(input_file, output_file=None, table_type='column', sheet_name=None, time_unit='none'):
     input_path = Path(input_file).expanduser().resolve()
     if not input_path.is_file():
         raise FileNotFoundError(f'Excel file not found: {input_path}')
@@ -71,6 +105,8 @@ def convert_excel_to_prism(input_file, output_file=None, table_type='column', sh
     if output_path.exists():
         raise FileExistsError(f'Output already exists: {output_path}. Choose another filename.')
 
+    if time_unit not in {'none', 'seconds', 'minutes'}:
+        raise ValueError('Time unit must be none, seconds or minutes.')
     tables = []
     with pd.ExcelFile(input_path) as workbook:
         selected = [sheet_name] if sheet_name is not None else workbook.sheet_names
@@ -89,9 +125,11 @@ def convert_excel_to_prism(input_file, output_file=None, table_type='column', sh
             data = raw.iloc[1:].reset_index(drop=True)
             if table_type == 'xy' and data.shape[1] < 2:
                 raise ValueError(f"Sheet '{name}' needs X and at least one Y column.")
-            columns = [[numeric_text(v, name, r + 2, excel_column_name(c))
-                        for r, v in enumerate(data.iloc[:, c])]
-                       for c in range(data.shape[1])]
+            prepared = [prepare_column(list(data.iloc[:, c]), titles[c], name,
+                                       excel_column_name(c), time_unit)
+                        for c in range(data.shape[1])]
+            titles = [item[0] for item in prepared]
+            columns = [item[1] for item in prepared]
             tables.append((name, titles, columns))
     if not tables:
         raise ValueError('No worksheets containing data were found.')
@@ -130,9 +168,11 @@ def main():
     parser.add_argument('-o', '--output', help='Output .pzfx filename')
     parser.add_argument('--type', choices=['column', 'xy'], default='column', help='Default: column')
     parser.add_argument('--sheet', help='Worksheet name; default: all worksheets')
+    parser.add_argument('--time-unit', choices=['none', 'seconds', 'minutes'], default='none',
+                        help='Explicit conversion of duration columns; numeric columns are unchanged')
     args = parser.parse_args()
     try:
-        convert_excel_to_prism(args.input, args.output, args.type, args.sheet)
+        convert_excel_to_prism(args.input, args.output, args.type, args.sheet, args.time_unit)
     except Exception as error:
         parser.exit(1, f'Conversion failed: {error}\n')
 

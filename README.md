@@ -1,11 +1,10 @@
-# Excel to Prism Studio 1.0.0
+# Excel to Prism Studio 1.1.0
 
-Offline Windows interface for your supplied converter. `excel_to_prism.py` is
-unchanged; the GUI in `app.py` calls its conversion function. No GraphPad affiliation.
+Offline Windows interface for your supplied converter. `excel_to_prism.py` retains the original strict mode and adds explicit duration conversion; the GUI calls its conversion function. No GraphPad affiliation.
 
 ## Supported conversion
 
-Inputs: .xlsx, .xlsm, .xls. First row: titles; remaining rows: numbers or blanks.
+Inputs: .xlsx, .xlsm, .xls. First row: titles; remaining rows: numbers, blanks, or explicitly converted durations.
 Column mode: one group per column. XY: X first, then individual Y datasets.
 All worksheets or one worksheet can be converted to one .pzfx file. Empty and
 header-only sheets are skipped. Invalid cells stop conversion with an address.
@@ -33,7 +32,7 @@ in Prism 10. Do not rename .pzfx to .prism. GraphPad is separately licensed.
 6. Wait for ALL steps to pass. If red, open the failed step and share its log.
 7. In the successful run, scroll to **Artifacts**. Download
    **Excel-to-Prism-Studio-Windows-Installer** and extract the downloaded ZIP.
-8. Run `Excel_to_Prism_Studio_Setup_1.0.0.exe`. It installs for your Windows user,
+8. Run `Excel_to_Prism_Studio_Setup_1.1.0.exe`. It installs for your Windows user,
    creates a Start Menu shortcut and offers an optional desktop shortcut.
 9. Launch from Start, convert a small known workbook, then verify the result
    using Prism 10 File → Open before using it for research.
@@ -45,7 +44,7 @@ attach the installer. Never upload private research workbooks or credentials.
 
 ## Use
 
-Browse workbook → worksheet → Column/XY → choose a NEW output filename → Convert.
+Browse workbook → worksheet → Column/XY → Convert durations (none/seconds/minutes) → choose a NEW output filename → Convert.
 Open result uses the Windows file association. If it fails, open Prism and use
 File → Open. Supporting Tools opens the guide. Appearance offers Light, OLED Dark
 and Colored Mode; theme choice lasts for the session. Conversion runs in a worker
@@ -122,3 +121,33 @@ not establish acceptance by Prism.
 - No data: include titles and at least one numeric data row.
 - Open result fails: use Prism File → Open; report any Prism error.
 - Build does not start: check workflow path, enable Actions, use Run workflow.
+
+
+## Version 1.1.0: phase workbook fix
+
+For the supplied Recovery and Warming Up workbooks select **XY**, then
+**Convert durations: seconds**. Confirm the conversion prompt. The first Time
+column becomes numeric X with the title Time (seconds). Time origin is retained,
+so recovery starts at its recorded time, not zero. Each participant worksheet
+remains a separate table. In Prism choose Heart Rate as the Y dataset to graph.
+All other columns (including the existing Time in Seconds, blank separator,
+slopes and recovery summaries) are retained without recalculation. These mixed
+metrics should not all be graphed as heart rate or treated as replicate groups.
+
+Minutes converts duration columns only; the existing numeric Time in Seconds
+column remains in seconds. Its title is preserved. The app never guesses units
+for numeric Excel serial values. Accepted text format is h:mm:ss[.fraction]
+with minutes and seconds below 60. Native Excel time/timedelta objects also work.
+Mixed duration/numeric columns fail with the cell address rather than guessing.
+Default none retains the original strict conversion behavior.
+
+Text participant-ID columns such as P001 are still unsupported in numeric tables.
+The Tidy workbook has not been provided, so its layout has not been repaired.
+No uploaded research workbooks or generated research outputs are in this source
+ZIP. Do not upload those files to GitHub.
+
+For an existing GitHub repository, upload this project's contents to the SAME
+paths, replacing matching files. Be sure to replace
+.github/workflows/build-windows.yml and installer/setup.iss too. Commit, wait for
+the new workflow to pass, download its artifact and run the 1.1.0 installer with
+the app closed. It retains the same installation identity/path as 1.0.0.
