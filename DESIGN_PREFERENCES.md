@@ -360,3 +360,15 @@ Throughout the application:
 ## Maintaining this document
 
 When I give a new complaint or design correction, update the relevant preference instead of retaining contradictory instructions. Record the latest requirement without claiming it is implemented until the app has actually been changed and checked. Do not turn a study-specific statistical instruction into a universal rule for unrelated research.
+
+
+## Excel to Prism desktop update — 21 October 2026
+
+Use deeper, richer colors in each theme while retaining clear text contrast:
+light cream with deep burgundy; OLED true black with ruby; colored mode with
+deep plum and gold. Include About Developer for Progress Ajayi and an optional
+professional profile link. Keep Copy App Link and Share App directly accessible,
+using the configured GitHub Releases destination. Allow profile/link editing.
+Sharing must not upload workbooks. Retain offline conversion and all duration
+conversion fixes. These desktop requirements supersede conflicting theme/link
+presentation details for this converter only.

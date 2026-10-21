@@ -16,3 +16,14 @@ build/install/uninstall for this update, GitHub workflow execution, or opening
 outputs in GraphPad Prism 10. PZFX XML/data checks do not prove Prism acceptance.
 Original user workbooks were read only and excluded from the project ZIP.
 The Tidy participant-ID workbook was not supplied and remains untested/unsupported.
+
+
+# Version 1.2.0 interface update
+
+- Conversion module unchanged from 1.1.0; all 14 regression tests passed again.
+- Python compilation passed for GUI and settings module.
+- Settings write/read round-trip passed in a temporary user-data directory.
+- URL checks rejected script/file schemes, embedded credentials and whitespace.
+- No display server is available: themes, dialogs, browser launching, clipboard,
+  scaling and live interface behavior remain unverified. Windows build and
+  installation of this update have not been run here. No GitHub Release created.

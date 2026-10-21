@@ -1,4 +1,4 @@
-# Excel to Prism Studio 1.1.0
+# Excel to Prism Studio 1.2.0
 
 Offline Windows interface for your supplied converter. `excel_to_prism.py` retains the original strict mode and adds explicit duration conversion; the GUI calls its conversion function. No GraphPad affiliation.
 
@@ -32,7 +32,7 @@ in Prism 10. Do not rename .pzfx to .prism. GraphPad is separately licensed.
 6. Wait for ALL steps to pass. If red, open the failed step and share its log.
 7. In the successful run, scroll to **Artifacts**. Download
    **Excel-to-Prism-Studio-Windows-Installer** and extract the downloaded ZIP.
-8. Run `Excel_to_Prism_Studio_Setup_1.1.0.exe`. It installs for your Windows user,
+8. Run `Excel_to_Prism_Studio_Setup_1.2.0.exe`. It installs for your Windows user,
    creates a Start Menu shortcut and offers an optional desktop shortcut.
 9. Launch from Start, convert a small known workbook, then verify the result
    using Prism 10 File → Open before using it for research.
@@ -47,7 +47,7 @@ attach the installer. Never upload private research workbooks or credentials.
 Browse workbook → worksheet → Column/XY → Convert durations (none/seconds/minutes) → choose a NEW output filename → Convert.
 Open result uses the Windows file association. If it fails, open Prism and use
 File → Open. Supporting Tools opens the guide. Appearance offers Light, OLED Dark
-and Colored Mode; theme choice lasts for the session. Conversion runs in a worker
+and Colored Mode; theme choice is saved on this computer. Conversion runs in a worker
 thread. The activity bar indicates work, not a fabricated percentage. Close is
 blocked during work. Conversion is offline and no telemetry is added.
 
@@ -151,3 +151,37 @@ paths, replacing matching files. Be sure to replace
 .github/workflows/build-windows.yml and installer/setup.iss too. Commit, wait for
 the new workflow to pass, download its artifact and run the 1.1.0 installer with
 the app closed. It retains the same installation identity/path as 1.0.0.
+
+
+## Version 1.2.0: appearance, developer and sharing
+
+All 1.1.0 duration fixes are included. Themes now use deeper burgundy, gold,
+black and plum, including fields, dropdown menus, progress and secondary dialogs.
+Light retains light surfaces for legibility. Theme choice is saved per Windows
+user. No conversion calculations were changed for this interface update.
+
+About Developer names Progress Ajayi. No qualifications or external biography
+have been invented. Add your preferred biography and professional profile URL
+under Link & Profile Settings. An optional Professional Profile button appears
+when that URL is set. Defaults for new distributions live in app_settings.py.
+User edits affect this computer, not other people's installations.
+
+Copy App Link copies the configured address. Share App opens a panel with Copy
+Link and Open Download Page; it does not send messages automatically. The default
+is https://github.com/ajayiprogress04-ctrl/excel-to-prism-studio/releases, inferred
+from the account/repository used in this project. Verify or correct it in settings.
+No public access or published Release has been verified. A private repository
+requires recipient access. A public release with the installer attached is needed
+for a generally accessible download link. Sharing uses the internet/browser;
+Excel conversion itself remains fully offline. No workbook or output is shared.
+
+Settings are stored in %LOCALAPPDATA%/ExcelToPrismStudio/settings.json, outside
+installation files. Invalid web URL schemes and credential-bearing URLs are
+rejected. Uninstall leaves these preferences and user data untouched.
+
+Upload all contents to matching repository paths, including app_settings.py,
+installer/setup.iss and .github/workflows/build-windows.yml. Build the new
+workflow, then install Excel_to_Prism_Studio_Setup_1.2.0.exe with the old app closed.
+On Windows, check the three themes, clipboard paste, Share dialog, About dialog,
+profile editing and settings persistence after restart. Browser/clipboard and
+visual behavior have not been tested here because no desktop display is available.
