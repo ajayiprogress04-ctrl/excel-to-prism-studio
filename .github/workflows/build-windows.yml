@@ -37,7 +37,7 @@ jobs:
           if (-not (Test-Path $iscc)) { throw 'Inno Setup 6 is missing from the runner' }
           & $iscc installer/setup.iss
           if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-          $setup = (Resolve-Path 'dist/installer/Excel_to_Prism_Studio_Setup_1.0.0.exe').Path
+          $setup = (Resolve-Path 'dist/installer/Excel_to_Prism_Studio_Setup_1.2.0.exe').Path
           $target = Join-Path $env:RUNNER_TEMP 'Prism Studio Installed'
           $p = Start-Process $setup -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$target`"") -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "Installation failed: $($p.ExitCode)" }
@@ -48,5 +48,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Excel-to-Prism-Studio-Windows-Installer
-          path: dist/installer/Excel_to_Prism_Studio_Setup_1.0.0.exe
+          path: dist/installer/Excel_to_Prism_Studio_Setup_1.2.0.exe
           if-no-files-found: error
